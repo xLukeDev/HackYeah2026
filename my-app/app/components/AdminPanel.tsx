@@ -73,31 +73,39 @@ export default function AdminPanel() {
       {/* Main Content Area */}
       <div className="space-y-8">
         {/* SECTION 1: Weryfikacja Nowych Lokali (Zgłoszenia Właścicieli) */}
-        <AdminOwnerVerificationQueue
-          places={places}
-          onVerifyPlace={verifyPlace}
-          onSimulateOwnerSubmission={simulateOwnerSubmission}
-          onExplore={showPlaceOnMap}
-        />
+        <div id="kolejka-lokali" className="scroll-mt-24">
+          <AdminOwnerVerificationQueue
+            places={places}
+            onVerifyPlace={verifyPlace}
+            onSimulateOwnerSubmission={simulateOwnerSubmission}
+            onExplore={showPlaceOnMap}
+          />
+        </div>
 
         {/* SECTION 2: Kolejka moderacyjna zgłoszeń barier */}
-        <AdminReportsQueue
-          reports={reports}
-          onUpdateReportStatus={updateReportStatus}
-        />
+        <div id="zgloszenia-barier" className="scroll-mt-24">
+          <AdminReportsQueue
+            reports={reports}
+            onUpdateReportStatus={updateReportStatus}
+          />
+        </div>
 
         {/* SECTION 3: Miejska Baza Danych (Katalog obiektów) */}
-        <AdminPlacesRegistry
-          places={places}
-          onAddNewPlace={addNewPlace}
-          onExplore={showPlaceOnMap}
-        />
+        <div id="rejestr-lokali" className="scroll-mt-24">
+          <AdminPlacesRegistry
+            places={places}
+            onAddNewPlace={addNewPlace}
+            onExplore={showPlaceOnMap}
+          />
+        </div>
 
         {/* SECTION 4: Moderacja opinii mieszkańców */}
-        <AdminReviewsModeration
-          reviews={reviews}
-          onDeleteReview={deleteReview}
-        />
+        <div id="opinie-mieszkancow" className="scroll-mt-24">
+          <AdminReviewsModeration
+            reviews={reviews}
+            onDeleteReview={deleteReview}
+          />
+        </div>
       </div>
     </div>
   );

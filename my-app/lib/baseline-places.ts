@@ -242,7 +242,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     name: "Teatr im. Juliusza Słowackiego",
     category: "kultura",
     categoryLabel: "Kultura",
-    address: "pl. Świętego Ducha 1, 31-023 Kraków",
+    address: "plac Świętego Ducha 1, 31-023 Kraków",
     hours: "Kasa: 10:00 - 19:00 (oraz w trakcie spektakli)",
     features: [
       "Winda dostosowana do wózków",
@@ -326,7 +326,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     name: "Muzeum Narodowe w Krakowie (Gmach Główny)",
     category: "kultura",
     categoryLabel: "Kultura",
-    address: "al. 3 Maja 1, 30-062 Kraków",
+    address: "aleja 3 Maja 1, 30-062 Kraków",
     hours: "10:00 - 18:00 (wt-nd)",
     features: [
       "Winda dostosowana do wózków",
@@ -555,10 +555,10 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
   // --- ZDROWIE I URZĘDY ---
   {
     id: "urzad-miasta-krakowa-wszystkich-swietych",
-    name: "Urząd Miasta Krakowa (pl. Wszystkich Świętych)",
+    name: "Urząd Miasta Krakowa (plac Wszystkich Świętych)",
     category: "zdrowie",
     categoryLabel: "Zdrowie i Urzędy",
-    address: "pl. Wszystkich Świętych 3-4, 31-004 Kraków",
+    address: "plac Wszystkich Świętych 3-4, 31-004 Kraków",
     hours: "07:30 - 15:30 (pon-pt)",
     features: [
       "Winda dostosowana do wózków",
@@ -669,10 +669,10 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
   },
   {
     id: "urzad-miasta-powstania-warszawskiego",
-    name: "Urząd Miasta Krakowa (al. Powstania Warszawskiego)",
+    name: "Urząd Miasta Krakowa (aleja Powstania Warszawskiego)",
     category: "zdrowie",
     categoryLabel: "Zdrowie i Urzędy",
-    address: "al. Powstania Warszawskiego 10, 31-549 Kraków",
+    address: "aleja Powstania Warszawskiego 10, 31-549 Kraków",
     hours: "07:40 - 18:00 (pon-pt)",
     features: [
       "Winda dostosowana do wózków",
