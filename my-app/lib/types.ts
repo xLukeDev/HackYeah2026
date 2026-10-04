@@ -80,3 +80,18 @@ export interface UserProfile {
   points: number;
   ownedPlaceIds?: string[];
 }
+
+export interface OwnerNotification {
+  id: string;
+  recipientOwnerId?: string;
+  recipientOwnerName?: string;
+  placeId: string;
+  placeName: string;
+  placeAddress: string;
+  type: "place_deleted" | "place_verified" | "place_needs_fix";
+  title: string;
+  message: string;
+  reason?: string;
+  date: string;
+  read?: boolean;
+}

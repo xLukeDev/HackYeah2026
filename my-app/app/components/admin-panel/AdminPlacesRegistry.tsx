@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Place } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MapPin, ShieldCheck, Clock, AlertTriangle, XCircle } from "lucide-react";
+import { Plus, MapPin, ShieldCheck, Clock, AlertTriangle, XCircle, Trash2, Building2, Info, CheckCircle2 } from "lucide-react";
 
 interface AdminPlacesRegistryProps {
   places: Place[];
@@ -21,12 +21,17 @@ interface AdminPlacesRegistryProps {
     accessibility: Place["accessibility"];
     verified: boolean;
   }) => void;
+  onDeletePlace?: (
+    placeId: string,
+    reason?: string
+  ) => { ownerNotified: boolean; ownerName?: string; placeName: string };
   onExplore: (placeId: string) => void;
 }
 
 export default function AdminPlacesRegistry({
   places,
   onAddNewPlace,
+  onDeletePlace,
   onExplore,
 }: AdminPlacesRegistryProps) {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -76,10 +81,27 @@ export default function AdminPlacesRegistry({
   };
 
   const [statusFilter, setStatusFilter] = useState<"all" | "certified" | "pending" | "needs_fix">("all");
+  const [placeToDelete, setPlaceToDelete] = useState<Place | null>(null);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [notificationFeedback, setNotificationFeedback] = useState<string | null>(null);
 
   const certifiedCount = places.filter((p) => p.verified || p.verificationStatus === "zatwierdzony").length;
   const pendingCount = places.filter((p) => (!p.verified && p.verificationStatus !== "do_poprawy" && p.verificationStatus !== "odrzucony") || p.verificationStatus === "oczekuje").length;
   const needsFixCount = places.filter((p) => p.verificationStatus === "do_poprawy").length;
+
+  const handleConfirmDelete = () => {
+    if (!placeToDelete || !onDeletePlace) return;
+    const res = onDeletePlace(placeToDelete.id, deleteReason);
+    setNotificationFeedback(
+      `Obiekt "${res.placeName}" został usunięty z rejestru miejskiego.${
+        res.ownerNotified
+          ? ` Właściciel (${res.ownerName || "Zarządca"}) został powiadomiony w swoim panelu.`
+          : " Obiekt usunięty z bazy miejskiej."
+      }`
+    );
+    setPlaceToDelete(null);
+    setDeleteReason("");
+  };
 
   const filteredPlaces = places.filter((p) => {
     const isCertified = p.verified || p.verificationStatus === "zatwierdzony";
@@ -94,6 +116,21 @@ export default function AdminPlacesRegistry({
 
   return (
     <div id="rejestr-lokali" className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-7 shadow-xs scroll-mt-24">
+      {notificationFeedback && (
+        <div className="mb-5 flex items-center justify-between rounded-2xl bg-emerald-50 border border-emerald-200 p-3.5 text-xs text-emerald-900 shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+            <span className="font-semibold">{notificationFeedback}</span>
+          </div>
+          <button
+            onClick={() => setNotificationFeedback(null)}
+            className="text-xs font-bold text-emerald-700 hover:text-emerald-900 px-2 py-0.5 rounded-lg hover:bg-emerald-100 transition-colors"
+          >
+            Zamknij
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-purple-700">
@@ -229,14 +266,30 @@ export default function AdminPlacesRegistry({
 
               <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-2 text-[11px] text-slate-400">
                 <span>Ocena: {place.rating || 5}.0 ({place.reviewsCount || 1} opinii)</span>
-                <button
-                  type="button"
-                  className="flex items-center gap-1 font-bold text-purple-700 hover:text-purple-900 hover:underline transition-colors"
-                  onClick={() => onExplore(place.id)}
-                >
-                  <MapPin className="h-3.5 w-3.5" />
-                  Pokaż na mapie
-                </button>
+                <div className="flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    className="flex items-center gap-1 font-bold text-purple-700 hover:text-purple-900 hover:underline transition-colors cursor-pointer"
+                    onClick={() => onExplore(place.id)}
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                    Pokaż na mapie
+                  </button>
+                  {onDeletePlace && (
+                    <button
+                      type="button"
+                      className="flex items-center gap-1 font-bold text-rose-600 hover:text-rose-800 hover:underline transition-colors cursor-pointer"
+                      onClick={() => {
+                        setPlaceToDelete(place);
+                        setDeleteReason("");
+                      }}
+                      title="Usuń obiekt z rejestru miejskiego"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Usuń
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           );
@@ -337,6 +390,96 @@ export default function AdminPlacesRegistry({
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {placeToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            onClick={() => setPlaceToDelete(null)}
+          />
+          <div className="relative z-10 w-full max-w-md rounded-3xl border border-rose-200 bg-white p-6 shadow-2xl space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">
+                  Usuwanie lokalu z rejestru miejskiego
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Operacja wykreśli obiekt z mapy i oficjalnej bazy dostępności.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3.5 space-y-1 text-xs">
+              <div className="font-bold text-slate-900">{placeToDelete.name}</div>
+              <div className="text-slate-500 flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-purple-700" />
+                {placeToDelete.address}
+              </div>
+              <div className="text-slate-400 text-[11px] pt-1">
+                Kategoria: {placeToDelete.categoryLabel} · ID: #{placeToDelete.id}
+              </div>
+            </div>
+
+            {/* Owner info */}
+            {placeToDelete.ownerId || placeToDelete.submittedByOwnerName ? (
+              <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-3 text-xs text-blue-900 flex items-start gap-2.5">
+                <Building2 className="h-4 w-4 text-blue-700 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold">Zarządca lokalu otrzyma powiadomienie:</span>
+                  <p className="text-[11px] text-blue-800 mt-0.5">
+                    Właściciel <strong>{placeToDelete.submittedByOwnerName || "Zarejestrowany właściciel"}</strong> zostanie poinformowany o usunięciu obiektu w swoim panelu.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 flex items-start gap-2.5">
+                <Info className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                <p className="text-[11px]">
+                  Obiekt publiczny z bazy OpenStreetMap (brak powiązanego profilu właściciela).
+                </p>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Powód usunięcia (widoczny w powiadomieniu właściciela):
+              </label>
+              <textarea
+                rows={3}
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                placeholder="np. Trwała likwidacja działalności, niespełnianie wymogów dostępności architektonicznej UMK, rozbieżność z audytem..."
+                className="w-full rounded-xl border border-slate-200 p-2.5 text-xs outline-none focus:border-rose-600 transition-colors"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPlaceToDelete(null)}
+                className="flex-1 rounded-xl text-xs font-bold"
+              >
+                Anuluj
+              </Button>
+              <Button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="flex-1 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                {placeToDelete.ownerId || placeToDelete.submittedByOwnerName
+                  ? "Usuń i powiadom"
+                  : "Potwierdź usunięcie"}
+              </Button>
+            </div>
           </div>
         </div>
       )}

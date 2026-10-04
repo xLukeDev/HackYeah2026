@@ -18,6 +18,7 @@ export default function AdminPanel() {
     updateReportStatus,
     deleteReview,
     addNewPlace,
+    deletePlace,
     openAuthModal,
     setActiveView,
     verifyPlace,
@@ -95,6 +96,7 @@ export default function AdminPanel() {
           <AdminPlacesRegistry
             places={places}
             onAddNewPlace={addNewPlace}
+            onDeletePlace={deletePlace}
             onExplore={showPlaceOnMap}
           />
         </div>

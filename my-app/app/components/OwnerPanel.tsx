@@ -6,6 +6,7 @@ import { Place } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Building2 } from "lucide-react";
 import OwnerHeader from "./owner-panel/OwnerHeader";
+import OwnerNotificationsBanner from "./owner-panel/OwnerNotificationsBanner";
 import OwnerRegisterPlaceForm from "./owner-panel/OwnerRegisterPlaceForm";
 import OwnerVerificationBanner from "./owner-panel/OwnerVerificationBanner";
 import OwnerAccessibilityAudit from "./owner-panel/OwnerAccessibilityAudit";
@@ -18,6 +19,8 @@ export default function OwnerPanel() {
     currentUser,
     places,
     reviews,
+    notifications,
+    dismissNotification,
     updatePlaceFeatures,
     updatePlaceDetails,
     addOwnerReply,
@@ -113,6 +116,11 @@ export default function OwnerPanel() {
   // Filter reviews for the currently selected place
   const placeReviews = reviews.filter((r) => r.placeId === currentPlace.id);
 
+  // Filter notifications for this owner
+  const ownerNotifications = notifications.filter(
+    (n) => !n.recipientOwnerId || n.recipientOwnerId === currentUser.id
+  );
+
   return (
     <div className="mx-auto w-full max-w-6xl space-y-8">
       {/* Header Banner */}
@@ -121,6 +129,12 @@ export default function OwnerPanel() {
         places={ownedPlaces}
         selectedPlaceId={currentPlace.id}
         onPlaceChange={handlePlaceChange}
+      />
+
+      {/* Municipal Administrative Notifications */}
+      <OwnerNotificationsBanner
+        notifications={ownerNotifications}
+        onDismiss={dismissNotification}
       />
 
       {/* Register New Place Form Section */}

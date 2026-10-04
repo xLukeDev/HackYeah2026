@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { Place, Review, Report, UserProfile, UserRole } from "./types";
+import { Place, Review, Report, UserProfile, UserRole, OwnerNotification } from "./types";
 import {
   INITIAL_PLACES,
   INITIAL_REVIEWS,
@@ -17,6 +17,7 @@ interface AppContextType {
   places: Place[];
   reviews: Review[];
   reports: Report[];
+  notifications: OwnerNotification[];
   isAuthModalOpen: boolean;
   selectedPlaceForReview: Place | null;
   setActiveView: (view: ActiveView) => void;
@@ -47,6 +48,11 @@ interface AppContextType {
   updatePlaceFeatures: (placeId: string, features: string[]) => void;
   updatePlaceDetails: (placeId: string, details: Partial<Place>) => void;
   addNewPlace: (place: Omit<Place, "id" | "rating" | "reviewsCount">) => Place;
+  deletePlace: (
+    placeId: string,
+    reason?: string
+  ) => { ownerNotified: boolean; ownerName?: string; placeName: string };
+  dismissNotification: (notificationId: string) => void;
   openReviewForPlace: (place: Place) => void;
   closeReviewModal: () => void;
   isSyncingPlaces: boolean;
@@ -71,6 +77,7 @@ const STORAGE_KEYS = {
   REVIEWS: "dostepne_miasto_reviews_v3",
   REPORTS: "dostepne_miasto_reports_v3",
   SYNCED: "dostepne_miasto_synced_v3",
+  NOTIFICATIONS: "dostepne_miasto_notifications_v3",
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -142,6 +149,93 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
     return INITIAL_REPORTS;
   });
+
+  const [notifications, setNotifications] = useState<OwnerNotification[]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch {}
+      }
+    }
+    return [
+      {
+        id: "notif-demo-1",
+        recipientOwnerId: "owner-1",
+        recipientOwnerName: "Jan Nowak (Właściciel)",
+        placeId: "archive-demo-1",
+        placeName: "Kawiarnia Bracka Retro",
+        placeAddress: "ul. Bracka 14, 31-005 Kraków",
+        type: "place_deleted",
+        title: "Usunięcie lokalu z rejestru miejskiego",
+        message: 'Twój lokal "Kawiarnia Bracka Retro" został usunięty z rejestru miejskiego przez administratora.',
+        reason: "Zgłoszenie trwałego zamknięcia lokalu gastronomicznego i wymeldowania działalności.",
+        date: "2026-09-29",
+        read: false,
+      },
+    ];
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
+    }
+  }, [notifications]);
+
+  const dismissNotification = (notificationId: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+  };
+
+  const deletePlace = (placeId: string, reason?: string) => {
+    const targetPlace = places.find((p) => p.id === placeId);
+    if (!targetPlace) return { ownerNotified: false, placeName: "" };
+
+    const placeName = targetPlace.name;
+    const hasOwner = Boolean(targetPlace.ownerId || targetPlace.submittedByOwnerName);
+
+    if (hasOwner) {
+      const newNotif: OwnerNotification = {
+        id: `notif-${Date.now()}`,
+        recipientOwnerId: targetPlace.ownerId || "owner-1",
+        recipientOwnerName: targetPlace.submittedByOwnerName || "Właściciel lokalu",
+        placeId: targetPlace.id,
+        placeName: targetPlace.name,
+        placeAddress: targetPlace.address,
+        type: "place_deleted",
+        title: "Usunięcie lokalu z rejestru miejskiego",
+        message: `Twój lokal "${targetPlace.name}" (${targetPlace.address}) został usunięty z rejestru miejskiego przez Urząd Miasta Krakowa.`,
+        reason:
+          reason?.trim() ||
+          "Wycofanie wpisu ze względu na niespełnianie standardów dostępności architektonicznej lub nieaktualne dane.",
+        date: new Date().toISOString().slice(0, 10),
+        read: false,
+      };
+
+      setNotifications((prev) => [newNotif, ...prev]);
+    }
+
+    setPlaces((prev) => {
+      const updated = prev.filter((p) => p.id !== placeId);
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    if (selectedPlaceId === placeId) {
+      const remaining = places.filter((p) => p.id !== placeId);
+      if (remaining.length > 0) {
+        setSelectedPlaceId(remaining[0].id);
+      }
+    }
+
+    return {
+      ownerNotified: hasOwner,
+      ownerName: targetPlace.submittedByOwnerName,
+      placeName,
+    };
+  };
 
   const [isSyncingPlaces, setIsSyncingPlaces] = useState(false);
   const [lastSyncedSource, setLastSyncedSource] = useState<string>("OpenStreetMap");
@@ -613,6 +707,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         syncPlacesFromOSM,
         verifyPlace,
         simulateOwnerSubmission,
+        notifications,
+        deletePlace,
+        dismissNotification,
         selectedPlaceId,
         setSelectedPlaceId,
         showPlaceOnMap,
