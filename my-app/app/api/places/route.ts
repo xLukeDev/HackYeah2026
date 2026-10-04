@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { Place } from "@/lib/types";
 import { BASELINE_KRAKOW_PLACES } from "@/lib/baseline-places";
+import { resolveKrakowAddress } from "@/lib/krakow-address-resolver";
 
 // Obszar Krakowa (Bounding Box: południe, zachód, północ, wschód)
 const KRAKOW_BBOX = "50.00,19.85,50.12,20.08";
@@ -53,13 +54,8 @@ function mapOSMElementToPlace(el: any, index: number): Place {
   const rawName = tags.name || tags["brand"] || "Obiekt Miejski";
   const name = rawName.trim();
 
-  // Budowanie adresu na podstawie tagów adresowych OSM
-  const streetName = tags["addr:street"] || tags["street"] || "";
-  const houseNumber = tags["addr:housenumber"] || tags["housenumber"] || "";
-  const postalCode = tags["addr:postcode"] || "";
-  const address = streetName
-    ? `${streetName} ${houseNumber}${postalCode ? `, ${postalCode}` : ""}, Kraków`
-    : `Kraków (współrzędne: ${el.lat.toFixed(4)}, ${el.lon.toFixed(4)})`;
+  // Budowanie autentycznego adresu na podstawie tagów OSM lub siatki ulic Krakowa
+  const address = resolveKrakowAddress(tags, el.lat, el.lon, name);
 
   const hours = tags["opening_hours"] || "08:00 - 20:00";
 

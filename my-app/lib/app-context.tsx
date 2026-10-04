@@ -8,6 +8,7 @@ import {
   INITIAL_REPORTS,
   DEMO_USERS,
 } from "./initial-data";
+import { resolveKrakowAddress } from "./krakow-address-resolver";
 
 export type ActiveView = "explore" | "user-panel" | "owner-panel" | "admin-panel";
 
@@ -72,13 +73,28 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  USER: "dostepne_miasto_user_v3",
-  PLACES: "dostepne_miasto_places_v3",
-  REVIEWS: "dostepne_miasto_reviews_v3",
-  REPORTS: "dostepne_miasto_reports_v3",
-  SYNCED: "dostepne_miasto_synced_v3",
-  NOTIFICATIONS: "dostepne_miasto_notifications_v3",
+  USER: "dostepne_miasto_user_v4",
+  PLACES: "dostepne_miasto_places_v4",
+  REVIEWS: "dostepne_miasto_reviews_v4",
+  REPORTS: "dostepne_miasto_reports_v4",
+  SYNCED: "dostepne_miasto_synced_v4",
+  NOTIFICATIONS: "dostepne_miasto_notifications_v4",
 };
+
+function sanitizePlace(p: Place): Place {
+  if (!p.address || p.address.includes("współrzędne")) {
+    return {
+      ...p,
+      address: resolveKrakowAddress(
+        undefined,
+        typeof p.lat === "number" ? p.lat : 50.0617,
+        typeof p.lng === "number" ? p.lng : 19.9373,
+        p.name
+      ),
+    };
+  }
+  return p;
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(() => {
@@ -119,11 +135,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const stored = localStorage.getItem(STORAGE_KEYS.PLACES);
       if (stored) {
         try {
-          return JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.map(sanitizePlace);
+          }
         } catch {}
       }
     }
-    return INITIAL_PLACES;
+    return INITIAL_PLACES.map(sanitizePlace);
   });
 
   const [reviews, setReviews] = useState<Review[]>(() => {
@@ -247,13 +266,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         if (data && Array.isArray(data.places) && data.places.length > 0) {
-          setPlaces(data.places);
+          const sanitized = data.places.map(sanitizePlace);
+          setPlaces(sanitized);
           setLastSyncedSource(
             data.source === "openstreetmap-live"
               ? "OpenStreetMap Live"
               : "OpenStreetMap Kraków"
           );
-          localStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(data.places));
+          localStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(sanitized));
           localStorage.setItem(STORAGE_KEYS.SYNCED, "true");
         }
       }
@@ -268,17 +288,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Clean legacy v1 & v2 storage keys to wipe old mock places, reviews, reports
+    // Clean legacy storage keys to wipe old cached places with raw coordinates
     localStorage.removeItem("dostepne_miasto_places");
     localStorage.removeItem("dostepne_miasto_reviews");
     localStorage.removeItem("dostepne_miasto_reports");
     localStorage.removeItem("dostepne_miasto_places_v2");
     localStorage.removeItem("dostepne_miasto_reviews_v2");
     localStorage.removeItem("dostepne_miasto_reports_v2");
+    localStorage.removeItem("dostepne_miasto_places_v3");
+    localStorage.removeItem("dostepne_miasto_reviews_v3");
+    localStorage.removeItem("dostepne_miasto_reports_v3");
+    localStorage.removeItem("dostepne_miasto_synced_v3");
 
     const hasSynced = localStorage.getItem(STORAGE_KEYS.SYNCED);
     if (!hasSynced) {
-      void syncPlacesFromOSM();
+      const timer = setTimeout(() => {
+        void syncPlacesFromOSM();
+      }, 50);
+      return () => clearTimeout(timer);
     }
   }, []);
 
