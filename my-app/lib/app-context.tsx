@@ -49,15 +49,28 @@ interface AppContextType {
   addNewPlace: (place: Omit<Place, "id" | "rating" | "reviewsCount">) => Place;
   openReviewForPlace: (place: Place) => void;
   closeReviewModal: () => void;
+  isSyncingPlaces: boolean;
+  lastSyncedSource: string;
+  syncPlacesFromOSM: () => Promise<void>;
+  selectedPlaceId: string;
+  setSelectedPlaceId: (id: string) => void;
+  showPlaceOnMap: (placeId: string) => void;
+  verifyPlace: (
+    placeId: string,
+    status: "zatwierdzony" | "odrzucony" | "do_poprawy",
+    notes?: string
+  ) => void;
+  simulateOwnerSubmission: () => Place;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  USER: "dostepne_miasto_user",
-  PLACES: "dostepne_miasto_places",
-  REVIEWS: "dostepne_miasto_reviews",
-  REPORTS: "dostepne_miasto_reports",
+  USER: "dostepne_miasto_user_v3",
+  PLACES: "dostepne_miasto_places_v3",
+  REVIEWS: "dostepne_miasto_reviews_v3",
+  REPORTS: "dostepne_miasto_reports_v3",
+  SYNCED: "dostepne_miasto_synced_v3",
 };
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -79,6 +92,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [activeView, setActiveView] = useState<ActiveView>("explore");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [selectedPlaceForReview, setSelectedPlaceForReview] = useState<Place | null>(null);
+  const [selectedPlaceId, setSelectedPlaceId] = useState<string>("owner-zgloszenie-1");
+
+  const showPlaceOnMap = (placeId: string) => {
+    setSelectedPlaceId(placeId);
+    setActiveView("explore");
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        const el = document.getElementById("mapa");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    }
+  };
 
   const [places, setPlaces] = useState<Place[]>(() => {
     if (typeof window !== "undefined") {
@@ -115,6 +142,51 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
     return INITIAL_REPORTS;
   });
+
+  const [isSyncingPlaces, setIsSyncingPlaces] = useState(false);
+  const [lastSyncedSource, setLastSyncedSource] = useState<string>("OpenStreetMap");
+
+  const syncPlacesFromOSM = async () => {
+    setIsSyncingPlaces(true);
+    try {
+      const res = await fetch("/api/places");
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.places) && data.places.length > 0) {
+          setPlaces(data.places);
+          setLastSyncedSource(
+            data.source === "openstreetmap-live"
+              ? "OpenStreetMap Live"
+              : "OpenStreetMap Kraków"
+          );
+          localStorage.setItem(STORAGE_KEYS.PLACES, JSON.stringify(data.places));
+          localStorage.setItem(STORAGE_KEYS.SYNCED, "true");
+        }
+      }
+    } catch {
+      // Gracefully fallback to baseline
+    } finally {
+      setIsSyncingPlaces(false);
+    }
+  };
+
+  // First-run real-time synchronization from OpenStreetMap API route
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    // Clean legacy v1 & v2 storage keys to wipe old mock places, reviews, reports
+    localStorage.removeItem("dostepne_miasto_places");
+    localStorage.removeItem("dostepne_miasto_reviews");
+    localStorage.removeItem("dostepne_miasto_reports");
+    localStorage.removeItem("dostepne_miasto_places_v2");
+    localStorage.removeItem("dostepne_miasto_reviews_v2");
+    localStorage.removeItem("dostepne_miasto_reports_v2");
+
+    const hasSynced = localStorage.getItem(STORAGE_KEYS.SYNCED);
+    if (!hasSynced) {
+      void syncPlacesFromOSM();
+    }
+  }, []);
 
   // Sync to localStorage
   useEffect(() => {
@@ -165,7 +237,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       initials: role === "admin" ? "AM" : role === "owner" ? "WO" : "MK",
       badge: role === "admin" ? "Admin" : role === "owner" ? "Właściciel" : "Mieszkaniec",
       points: role === "admin" ? 999 : role === "owner" ? 150 : 340,
-      ownedPlaceIds: role === "owner" ? ["1", "4"] : undefined,
+      ownedPlaceIds: role === "owner" ? ["owner-zgloszenie-1", "mcdonalds-rynek", "teatr-slowackiego"] : undefined,
     };
     setCurrentUser(demo);
     if (role === "admin") setActiveView("admin-panel");
@@ -360,13 +432,153 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addNewPlace = (placeData: Omit<Place, "id" | "rating" | "reviewsCount">): Place => {
     const newId = String(Date.now());
+    const fallbackLat = 50.0614 + (Math.random() - 0.5) * 0.015;
+    const fallbackLng = 19.9383 + (Math.random() - 0.5) * 0.02;
+
     const newPlace: Place = {
       ...placeData,
       id: newId,
+      lat: Number.isFinite(placeData.lat) ? placeData.lat : fallbackLat,
+      lng: Number.isFinite(placeData.lng) ? placeData.lng : fallbackLng,
       rating: 5.0,
       reviewsCount: 1,
     };
     setPlaces((prev) => [newPlace, ...prev]);
+    return newPlace;
+  };
+
+  const verifyPlace = (
+    placeId: string,
+    status: "zatwierdzony" | "odrzucony" | "do_poprawy",
+    notes?: string
+  ) => {
+    const today = new Date().toISOString().slice(0, 10);
+    const verifier = currentUser?.name || "Administrator Miejski";
+
+    setPlaces((prev) =>
+      prev.map((p) => {
+        if (p.id !== placeId) return p;
+        const isApproved = status === "zatwierdzony";
+        return {
+          ...p,
+          verified: isApproved,
+          verificationStatus: status,
+          verificationNotes:
+            notes ||
+            (isApproved
+              ? "Obiekt zweryfikowany pozytywnie w rejestrze miejskim."
+              : "Wymaga uzupełnienia dokumentacji lub modyfikacji barier."),
+          verifiedAt: today,
+          verifiedBy: verifier,
+          accessibility: p.accessibility.map((a) => ({
+            ...a,
+            reliability: isApproved ? ("Potwierdzone" as const) : a.reliability,
+            source: isApproved ? `Weryfikacja miejska (${verifier})` : a.source,
+            date: today,
+          })),
+        };
+      })
+    );
+  };
+
+  const simulateOwnerSubmission = (): Place => {
+    const simulationVenues = [
+      {
+        name: "Kawiarnia Literacka Mozaika",
+        category: "restauracje" as const,
+        categoryLabel: "Restauracje",
+        address: "ul. Bracka 5, 31-005 Kraków",
+        hours: "09:00 - 21:00",
+        lat: 50.0595,
+        lng: 19.9365,
+        features: [
+          "Wejście bezprogowe (poziom 0)",
+          "Pętla indukcyjna (strefa obsługi / sala)",
+          "Toaleta przystosowana (z uchwytami)",
+          "Przyjazne dla psa przewodnika / asystującego",
+        ],
+        desc: "Nowo zgłoszony lokal przez właściciela. Kawiarnia po remoncie dostosowana dla osób ze szczególnymi potrzebami.",
+      },
+      {
+        name: "Bistro Przyjazne Zabłocie",
+        category: "restauracje" as const,
+        categoryLabel: "Restauracje",
+        address: "ul. Przemysłowa 12, 30-701 Kraków",
+        hours: "11:00 - 22:00",
+        lat: 50.0485,
+        lng: 19.9620,
+        features: [
+          "Podjazd / rampa z poręczami",
+          "Szerokie ciągi komunikacyjne (min. 120 cm)",
+          "Ciche godziny / strefa wyciszenia sensorycznego",
+        ],
+        desc: "Lokal gastronomiczny na Zabłociu z bezprogową rampą i strefą relaksu sensorycznego.",
+      },
+      {
+        name: "Galeria Sztuki Pod Baranami",
+        category: "kultura" as const,
+        categoryLabel: "Kultura",
+        address: "Rynek Główny 27, 31-010 Kraków",
+        hours: "10:00 - 19:00",
+        lat: 50.0614,
+        lng: 19.9361,
+        features: [
+          "Winda dostosowana do wózków",
+          "Audiodeskrypcja (menu / przewodnik)",
+          "Ścieżki dotykowe i linie naprowadzające",
+        ],
+        desc: "Prywatna przestrzeń wystawiennicza z audiodeskrypcją zgłoszona przez kuratora do certyfikacji miejskiej.",
+      },
+    ];
+
+    const pick = simulationVenues[Math.floor(Math.random() * simulationVenues.length)];
+    const newId = `owner-sim-${Date.now()}`;
+    const today = new Date().toISOString().slice(0, 10);
+
+    const newPlace: Place = {
+      id: newId,
+      name: `${pick.name} #${Math.floor(Math.random() * 900 + 100)}`,
+      category: pick.category,
+      categoryLabel: pick.categoryLabel,
+      address: pick.address,
+      hours: pick.hours,
+      features: pick.features,
+      accessibility: pick.features.map((f) => ({
+        label: f,
+        value: "Zgłoszone w deklaracji właściciela",
+        source: "Zgłoszenie właściciela obiektu",
+        date: today,
+        reliability: "Do sprawdzenia" as const,
+      })),
+      x: 50,
+      y: 50,
+      lat: pick.lat,
+      lng: pick.lng,
+      description: pick.desc,
+      ownerId: currentUser?.role === "owner" ? currentUser.id : "owner-1",
+      verified: false,
+      verificationStatus: "oczekuje",
+      submittedByOwnerName:
+        currentUser?.role === "owner"
+          ? `${currentUser.name} (Właściciel)`
+          : "Jan Nowak (Właściciel)",
+      rating: 5.0,
+      reviewsCount: 1,
+    };
+
+    setPlaces((prev) => [newPlace, ...prev]);
+
+    if (currentUser?.role === "owner") {
+      setCurrentUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              ownedPlaceIds: [...(prev.ownedPlaceIds || []), newId],
+            }
+          : prev
+      );
+    }
+
     return newPlace;
   };
 
@@ -396,6 +608,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         addNewPlace,
         openReviewForPlace,
         closeReviewModal,
+        isSyncingPlaces,
+        lastSyncedSource,
+        syncPlacesFromOSM,
+        verifyPlace,
+        simulateOwnerSubmission,
+        selectedPlaceId,
+        setSelectedPlaceId,
+        showPlaceOnMap,
       }}
     >
       {children}
