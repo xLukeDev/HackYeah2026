@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/app-context";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -32,6 +32,34 @@ export default function Home() {
   const [selectedFeature, setSelectedFeature] = useState<string | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showVerifyModal, setShowVerifyModal] = useState(false);
+
+  // Synchronizacja trybu wysokiego kontrastu z elementem nadrzędnym HTML/BODY
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = localStorage.getItem("dostepne_miasto_contrast");
+    if (stored === "true") {
+      setHighContrast(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (highContrast) {
+      document.documentElement.classList.add("high-contrast");
+      document.body.classList.add("high-contrast");
+    } else {
+      document.documentElement.classList.remove("high-contrast");
+      document.body.classList.remove("high-contrast");
+    }
+    localStorage.setItem("dostepne_miasto_contrast", String(highContrast));
+  }, [highContrast]);
+
+  // Skalowanie czcionki dla całego dokumentu
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const size = fontScale === 0 ? "16px" : fontScale === 1 ? "18px" : "20px";
+    document.documentElement.style.fontSize = size;
+  }, [fontScale]);
 
   const selectedPlace = places.find((p) => p.id === selectedPlaceId) || places[0];
 
@@ -70,7 +98,7 @@ export default function Home() {
   return (
     <div
       className={`min-h-screen flex flex-col font-sans transition-colors ${
-        highContrast ? "bg-black text-yellow-300" : "bg-[#f6f9fc] text-slate-900"
+        highContrast ? "high-contrast bg-black text-yellow-300" : "bg-[#f6f9fc] text-slate-900"
       } ${
         fontScale === 0
           ? "text-[15px]"

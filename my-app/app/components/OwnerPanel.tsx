@@ -29,8 +29,33 @@ export default function OwnerPanel() {
     switchRole,
   } = useApp();
 
+  const isOwner = currentUser?.role === "owner";
+
+  // Get places owned by this user (or fallback to first 2 places)
+  const ownedPlaces = places.filter((p) =>
+    currentUser?.ownedPlaceIds?.includes(p.id) || p.ownerId === currentUser?.id
+  ).length > 0
+    ? places.filter((p) =>
+        currentUser?.ownedPlaceIds?.includes(p.id) || p.ownerId === currentUser?.id
+      )
+    : places.slice(0, 2);
+
+  const [selectedPlaceId, setSelectedPlaceId] = useState(ownedPlaces[0]?.id || places[0]?.id);
+  const currentPlace = places.find((p) => p.id === selectedPlaceId) || places[0];
+
+  // Local state for feature checkboxes
+  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
+    currentPlace ? currentPlace.features : []
+  );
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
+  // Edit details state
+  const [hours, setHours] = useState(currentPlace?.hours || "");
+  const [description, setDescription] = useState(currentPlace?.description || "");
+  const [detailsSaved, setDetailsSaved] = useState(false);
+
   // If not logged in as owner, show prompt
-  if (!currentUser || currentUser.role !== "owner") {
+  if (!currentUser || !isOwner) {
     return (
       <div className="mx-auto max-w-4xl py-12 text-center">
         <div className="rounded-3xl border border-slate-200 bg-white p-10 shadow-sm">
@@ -53,29 +78,6 @@ export default function OwnerPanel() {
       </div>
     );
   }
-
-  // Get places owned by this user (or fallback to first 2 places)
-  const ownedPlaces = places.filter((p) =>
-    currentUser.ownedPlaceIds?.includes(p.id) || p.ownerId === currentUser.id
-  ).length > 0
-    ? places.filter((p) =>
-        currentUser.ownedPlaceIds?.includes(p.id) || p.ownerId === currentUser.id
-      )
-    : places.slice(0, 2);
-
-  const [selectedPlaceId, setSelectedPlaceId] = useState(ownedPlaces[0]?.id || places[0]?.id);
-  const currentPlace = places.find((p) => p.id === selectedPlaceId) || places[0];
-
-  // Local state for feature checkboxes
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>(
-    currentPlace ? currentPlace.features : []
-  );
-  const [savedSuccess, setSavedSuccess] = useState(false);
-
-  // Edit details state
-  const [hours, setHours] = useState(currentPlace?.hours || "");
-  const [description, setDescription] = useState(currentPlace?.description || "");
-  const [detailsSaved, setDetailsSaved] = useState(false);
 
   const handlePlaceChange = (placeId: string) => {
     setSelectedPlaceId(placeId);

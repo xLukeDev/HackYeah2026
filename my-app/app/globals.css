@@ -129,3 +129,227 @@
     @apply font-sans;
   }
 }
+
+/* ==========================================================================
+   TRYB WYSOKIEGO KONTRASTU (WCAG 2.1 AAA - CZARNO-ZOLTY / YELLOW-ON-BLACK)
+   Zgodny ze standardami dostepnosci cyfrowej dla administracji publicznej
+   ========================================================================== */
+
+html.high-contrast,
+body.high-contrast,
+.high-contrast {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+}
+
+/* 1. Tla i kontenery: karty, sekcje, panele, paski, formularze */
+.high-contrast [class*="bg-"],
+.high-contrast [class*="from-"],
+.high-contrast [class*="via-"],
+.high-contrast [class*="to-"],
+.high-contrast .card,
+.high-contrast [data-slot="card"] {
+  background-color: #000000 !important;
+  background-image: none !important;
+}
+
+/* 2. Obramowania i separatory */
+.high-contrast [class*="border"],
+.high-contrast [class*="rounded-xl"],
+.high-contrast [class*="rounded-2xl"],
+.high-contrast [class*="rounded-3xl"],
+.high-contrast hr {
+  border-color: #ffff00 !important;
+}
+
+.high-contrast [class*="shadow"] {
+  box-shadow: none !important;
+}
+
+/* 3. Teksty i typografia */
+.high-contrast h1,
+.high-contrast h2,
+.high-contrast h3,
+.high-contrast h4,
+.high-contrast h5,
+.high-contrast h6,
+.high-contrast p,
+.high-contrast span,
+.high-contrast label,
+.high-contrast li,
+.high-contrast td,
+.high-contrast th,
+.high-contrast div,
+.high-contrast [class*="text-"] {
+  color: #ffff00 !important;
+}
+
+.high-contrast strong,
+.high-contrast b {
+  color: #ffffff !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px !important;
+}
+
+/* 4. Linki */
+.high-contrast a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+  text-underline-offset: 3px !important;
+}
+
+.high-contrast a:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* 5. Przyciski */
+.high-contrast button {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast button:hover,
+.high-contrast button:focus-visible {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+.high-contrast button:hover *,
+.high-contrast button:focus-visible * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* Przyciski glowne akcji */
+.high-contrast button[type="submit"],
+.high-contrast button.bg-blue-600,
+.high-contrast button.bg-blue-700,
+.high-contrast button.bg-purple-700,
+.high-contrast button.bg-rose-600,
+.high-contrast button.bg-emerald-600,
+.high-contrast button.bg-amber-600 {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast button[type="submit"] *,
+.high-contrast button.bg-blue-600 *,
+.high-contrast button.bg-blue-700 *,
+.high-contrast button.bg-purple-700 *,
+.high-contrast button.bg-rose-600 *,
+.high-contrast button.bg-emerald-600 *,
+.high-contrast button.bg-amber-600 * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+.high-contrast button[type="submit"]:hover,
+.high-contrast button.bg-blue-600:hover,
+.high-contrast button.bg-blue-700:hover,
+.high-contrast button.bg-purple-700:hover,
+.high-contrast button.bg-rose-600:hover,
+.high-contrast button.bg-emerald-600:hover,
+.high-contrast button.bg-amber-600:hover {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast button[type="submit"]:hover *,
+.high-contrast button.bg-blue-600:hover *,
+.high-contrast button.bg-blue-700:hover *,
+.high-contrast button.bg-purple-700:hover *,
+.high-contrast button.bg-rose-600:hover *,
+.high-contrast button.bg-emerald-600:hover *,
+.high-contrast button.bg-amber-600:hover * {
+  color: #ffff00 !important;
+  stroke: #ffff00 !important;
+}
+
+/* Aktywne zakladki w nawigacji */
+.high-contrast nav button.bg-white,
+.high-contrast nav button[class*="shadow"] {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+.high-contrast nav button.bg-white *,
+.high-contrast nav button[class*="shadow"] * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* 6. Pola formularzy */
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast input::placeholder,
+.high-contrast textarea::placeholder {
+  color: #ffffff !important;
+  opacity: 0.8 !important;
+}
+
+.high-contrast input:focus,
+.high-contrast textarea:focus,
+.high-contrast select:focus {
+  outline: 2px solid #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.high-contrast input[type="checkbox"],
+.high-contrast input[type="radio"] {
+  accent-color: #ffff00 !important;
+  filter: contrast(200%);
+}
+
+/* 7. Odznaki i etykiety */
+.high-contrast [class*="badge"],
+.high-contrast [data-slot="badge"] {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
+
+/* 8. Ikony SVG */
+.high-contrast svg {
+  color: #ffff00 !important;
+  stroke: currentColor !important;
+}
+
+/* 9. Okna modalne, menu rozwijane i nakladki */
+.high-contrast [role="dialog"],
+.high-contrast .fixed [class*="rounded-3xl"],
+.high-contrast .fixed [class*="rounded-2xl"],
+.high-contrast .absolute[class*="rounded-2xl"] {
+  background-color: #000000 !important;
+  border: 3px solid #ffff00 !important;
+}
+
+.high-contrast .backdrop-blur,
+.high-contrast .backdrop-blur-sm,
+.high-contrast [class*="bg-slate-900/"] {
+  background-color: rgba(0, 0, 0, 0.92) !important;
+  backdrop-filter: none !important;
+}
+
+/* 10. Kontrolki mapy OpenLayers */
+.high-contrast .ol-viewport {
+  border: 2px solid #ffff00 !important;
+}
+
+.high-contrast .ol-control button {
+  background-color: #000000 !important;
+  color: #ffff00 !important;
+  border: 2px solid #ffff00 !important;
+}
