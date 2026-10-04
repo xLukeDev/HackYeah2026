@@ -64,7 +64,7 @@ export default function MapSection({
             />
             {isSyncingPlaces ? "Pobieranie z OSM..." : "Pobierz na żywo z OSM"}
           </Button>
-          <span className="text-xs font-bold text-slate-600 hidden sm:inline">
+          <span suppressHydrationWarning className="text-xs font-bold text-slate-600 hidden sm:inline">
             Znaleziono: {places.length} miejsc
           </span>
         </div>

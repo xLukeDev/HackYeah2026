@@ -53,9 +53,18 @@ export default function HeroSearch({
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Szukaj lokalu, adresu, windy, pętli indukcyjnej..."
+              placeholder="Wpisz nazwę lokalu lub tag (np. kawiarnia, burger, teatr, winda)..."
               className="h-12 min-w-0 flex-1 bg-transparent px-3 text-xs sm:text-sm text-slate-900 outline-none placeholder:text-slate-400"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="mr-2 text-xs font-semibold text-slate-400 hover:text-slate-700"
+              >
+                Wyczyść
+              </button>
+            )}
             <Button
               onClick={() =>
                 document.getElementById("mapa")?.scrollIntoView({ behavior: "smooth" })
@@ -64,6 +73,37 @@ export default function HeroSearch({
             >
               Szukaj
             </Button>
+          </div>
+
+          {/* Szybkie wyszukiwanie po tagach */}
+          <div className="mt-3 flex flex-wrap items-center gap-1.5 text-xs">
+            <span className="font-semibold text-cyan-200 text-[11px] uppercase tracking-wider mr-1">
+              Popularne tagi:
+            </span>
+            {[
+              "kawiarnia",
+              "kawa",
+              "obiad",
+              "burger",
+              "pizza",
+              "teatr",
+              "muzeum",
+              "basen",
+              "apteka",
+            ].map((tag) => (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => setSearchQuery(searchQuery.toLowerCase().includes(tag) ? "" : tag)}
+                className={`rounded-lg px-2 py-0.5 text-[11px] font-medium transition-all ${
+                  searchQuery.toLowerCase().includes(tag)
+                    ? "bg-cyan-300 text-blue-950 font-bold"
+                    : "bg-white/10 text-cyan-100 hover:bg-white/20"
+                }`}
+              >
+                #{tag}
+              </button>
+            ))}
           </div>
 
           {/* Quick Feature Filter Pills */}

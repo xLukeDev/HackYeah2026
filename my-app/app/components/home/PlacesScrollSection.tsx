@@ -58,7 +58,7 @@ export default function PlacesScrollSection({
           <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-0.5 text-xs font-bold text-blue-700">
             Katalog Dostępności
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mt-1">
+          <h3 suppressHydrationWarning className="text-xl font-bold text-slate-900 mt-1">
             Miejsca w Krakowie ({places.length})
           </h3>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -66,7 +66,7 @@ export default function PlacesScrollSection({
           </p>
         </div>
 
-        <span className="text-xs font-bold text-slate-500">
+        <span suppressHydrationWarning className="text-xs font-bold text-slate-500">
           Wyświetlanie: {Math.min(displayCount, places.length)} z {places.length}
         </span>
       </div>

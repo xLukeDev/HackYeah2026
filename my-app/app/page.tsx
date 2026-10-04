@@ -72,19 +72,9 @@ export default function Home() {
   })();
 
   const filteredPlaces = places.filter((place) => {
-    // Zawsze uwzględniaj aktualnie wybrany obiekt (np. z panelu admina), aby punkt zawsze był na mapie
-    if (place.id === selectedPlaceId) return true;
+    const rawQ = searchQuery.toLowerCase().trim();
+    const cleanQ = rawQ.replace(/^#/, "");
 
-    const q = searchQuery.toLowerCase().trim();
-    const matchSearch =
-      !q ||
-      [
-        place.name,
-        place.address,
-        place.categoryLabel,
-        place.description,
-        ...(place.tags || []),
-      ].some((value) => value.toLowerCase().includes(q));
     const matchCategory =
       !selectedCategory || place.category === selectedCategory;
     const matchFeature =
@@ -92,6 +82,27 @@ export default function Home() {
       place.features.some((feature) =>
         feature.toLowerCase().includes(selectedFeature.toLowerCase())
       );
+
+    if (!cleanQ) {
+      if (place.id === selectedPlaceId) return true;
+      return matchCategory && matchFeature;
+    }
+
+    const tokens = cleanQ.split(/\s+/).filter(Boolean);
+    const searchableStrings = [
+      place.name.toLowerCase(),
+      place.address.toLowerCase(),
+      place.categoryLabel.toLowerCase(),
+      place.description.toLowerCase(),
+      ...(place.tags || []).map((t) => t.toLowerCase()),
+      ...place.features.map((f) => f.toLowerCase()),
+      ...(place.accessibility || []).map((a) => `${a.label} ${a.value}`.toLowerCase()),
+    ];
+
+    const matchSearch = tokens.every((token) =>
+      searchableStrings.some((str) => str.includes(token))
+    );
+
     return matchSearch && matchCategory && matchFeature;
   });
 
