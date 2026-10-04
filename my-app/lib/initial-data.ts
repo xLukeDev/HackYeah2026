@@ -21,7 +21,7 @@ export const DEMO_USERS: UserProfile[] = [
     initials: "JN",
     badge: "Zarządca Certyfikowany",
     points: 120,
-    ownedPlaceIds: ["owner-zgloszenie-1", "mcdonalds-rynek", "teatr-slowackiego"],
+    ownedPlaceIds: ["owner-zgloszenie-1", "kawiarnia-noworolski-sukiennice", "teatr-slowackiego"],
   },
   {
     id: "admin-1",

@@ -73,27 +73,33 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  USER: "dostepne_miasto_user_v4",
-  PLACES: "dostepne_miasto_places_v4",
-  REVIEWS: "dostepne_miasto_reviews_v4",
-  REPORTS: "dostepne_miasto_reports_v4",
-  SYNCED: "dostepne_miasto_synced_v4",
-  NOTIFICATIONS: "dostepne_miasto_notifications_v4",
+  USER: "dostepne_miasto_user_v5",
+  PLACES: "dostepne_miasto_places_v5",
+  REVIEWS: "dostepne_miasto_reviews_v5",
+  REPORTS: "dostepne_miasto_reports_v5",
+  SYNCED: "dostepne_miasto_synced_v5",
+  NOTIFICATIONS: "dostepne_miasto_notifications_v5",
 };
 
 function sanitizePlace(p: Place): Place {
-  if (!p.address || p.address.includes("współrzędne")) {
-    return {
-      ...p,
-      address: resolveKrakowAddress(
-        undefined,
-        typeof p.lat === "number" ? p.lat : 50.0617,
-        typeof p.lng === "number" ? p.lng : 19.9373,
-        p.name
-      ),
-    };
+  let address = p.address;
+  if (!address || address.includes("współrzędne")) {
+    address = resolveKrakowAddress(
+      undefined,
+      typeof p.lat === "number" ? p.lat : 50.0617,
+      typeof p.lng === "number" ? p.lng : 19.9373,
+      p.name
+    );
   }
-  return p;
+
+  const categoryLabel =
+    p.category === "restauracje" ? "Gastronomia" : p.categoryLabel;
+
+  return {
+    ...p,
+    address,
+    categoryLabel,
+  };
 }
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
@@ -137,12 +143,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         try {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map(sanitizePlace);
+            return parsed
+              .filter((p: Place) => p.id !== "mcdonalds-rynek")
+              .map(sanitizePlace);
           }
         } catch {}
       }
     }
-    return INITIAL_PLACES.map(sanitizePlace);
+    return INITIAL_PLACES.filter((p: Place) => p.id !== "mcdonalds-rynek").map(sanitizePlace);
   });
 
   const [reviews, setReviews] = useState<Review[]>(() => {
@@ -266,7 +274,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         if (data && Array.isArray(data.places) && data.places.length > 0) {
-          const sanitized = data.places.map(sanitizePlace);
+          const sanitized = data.places
+            .filter((p: Place) => p.id !== "mcdonalds-rynek")
+            .map(sanitizePlace);
           setPlaces(sanitized);
           setLastSyncedSource(
             data.source === "openstreetmap-live"
@@ -288,7 +298,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Clean legacy storage keys to wipe old cached places with raw coordinates
+    // Clean legacy storage keys to wipe old cached places with raw coordinates or outdated venues
     localStorage.removeItem("dostepne_miasto_places");
     localStorage.removeItem("dostepne_miasto_reviews");
     localStorage.removeItem("dostepne_miasto_reports");
@@ -299,6 +309,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("dostepne_miasto_reviews_v3");
     localStorage.removeItem("dostepne_miasto_reports_v3");
     localStorage.removeItem("dostepne_miasto_synced_v3");
+    localStorage.removeItem("dostepne_miasto_places_v4");
+    localStorage.removeItem("dostepne_miasto_reviews_v4");
+    localStorage.removeItem("dostepne_miasto_reports_v4");
+    localStorage.removeItem("dostepne_miasto_synced_v4");
 
     const hasSynced = localStorage.getItem(STORAGE_KEYS.SYNCED);
     if (!hasSynced) {
@@ -358,7 +372,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       initials: role === "admin" ? "AM" : role === "owner" ? "WO" : "MK",
       badge: role === "admin" ? "Admin" : role === "owner" ? "Właściciel" : "Mieszkaniec",
       points: role === "admin" ? 999 : role === "owner" ? 150 : 340,
-      ownedPlaceIds: role === "owner" ? ["owner-zgloszenie-1", "mcdonalds-rynek", "teatr-slowackiego"] : undefined,
+      ownedPlaceIds: role === "owner" ? ["owner-zgloszenie-1", "kawiarnia-noworolski-sukiennice", "teatr-slowackiego"] : undefined,
     };
     setCurrentUser(demo);
     if (role === "admin") setActiveView("admin-panel");
@@ -607,7 +621,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       {
         name: "Kawiarnia Literacka Mozaika",
         category: "restauracje" as const,
-        categoryLabel: "Restauracje",
+        categoryLabel: "Gastronomia",
         address: "ul. Bracka 5, 31-005 Kraków",
         hours: "09:00 - 21:00",
         lat: 50.0595,
@@ -623,7 +637,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       {
         name: "Bistro Przyjazne Zabłocie",
         category: "restauracje" as const,
-        categoryLabel: "Restauracje",
+        categoryLabel: "Gastronomia",
         address: "ul. Przemysłowa 12, 30-701 Kraków",
         hours: "11:00 - 22:00",
         lat: 50.0485,

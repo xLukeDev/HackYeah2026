@@ -61,7 +61,7 @@ function mapOSMElementToPlace(el: any, index: number): Place {
 
   // Klasyfikacja do jednej z 4 kategorii w aplikacji
   let category: Place["category"] = "restauracje";
-  let categoryLabel = "Restauracje";
+  let categoryLabel = "Gastronomia";
 
   if (
     tags.tourism === "museum" ||

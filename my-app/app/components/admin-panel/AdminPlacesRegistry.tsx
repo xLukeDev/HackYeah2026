@@ -46,7 +46,7 @@ export default function AdminPlacesRegistry({
     if (!newName.trim() || !newAddress.trim()) return;
 
     const categoryLabels: Record<Place["category"], string> = {
-      restauracje: "Restauracje",
+      restauracje: "Gastronomia",
       kultura: "Kultura",
       sport: "Sport i Rekreacja",
       zdrowie: "Zdrowie i Urzędy",
@@ -332,7 +332,7 @@ export default function AdminPlacesRegistry({
                     onChange={(e) => setNewCategory(e.target.value as Place["category"])}
                     className="h-10 w-full rounded-xl border border-slate-200 bg-white px-2.5 text-xs outline-none focus:border-purple-700"
                   >
-                    <option value="restauracje">Restauracje</option>
+                    <option value="restauracje">Gastronomia</option>
                     <option value="kultura">Kultura</option>
                     <option value="sport">Sport</option>
                     <option value="zdrowie">Zdrowie i Urzędy</option>

@@ -5,7 +5,7 @@ import { useApp } from "@/lib/app-context";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  HeartPulse,
+  Accessibility,
   MapPin,
   UserCheck,
   Building2,
@@ -68,7 +68,7 @@ export default function Navbar({
               highContrast ? "bg-yellow-300 text-black" : "bg-blue-700 text-white"
             }`}
           >
-            <HeartPulse className="h-5 w-5" />
+            <Accessibility className="h-5 w-5" />
           </div>
           <div>
             <div className="text-sm font-bold tracking-tight">

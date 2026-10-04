@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge";
 export const CATEGORIES = [
   {
     id: "restauracje",
-    title: "Jedzenie",
-    desc: "Lokale bez barier",
+    title: "Gastronomia",
+    desc: "Restauracje i kawiarnie",
     count: 42,
     icon: UtensilsCrossed,
     color: "bg-cyan-50 text-cyan-700",

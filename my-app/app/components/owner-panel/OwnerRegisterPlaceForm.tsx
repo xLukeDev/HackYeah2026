@@ -53,7 +53,7 @@ export default function OwnerRegisterPlaceForm({
     e.preventDefault();
 
     const categoryLabels: Record<Place["category"], string> = {
-      restauracje: "Restauracje",
+      restauracje: "Gastronomia",
       kultura: "Kultura",
       sport: "Sport i Rekreacja",
       zdrowie: "Zdrowie i Urzędy",
@@ -152,7 +152,7 @@ export default function OwnerRegisterPlaceForm({
                 onChange={(e) => setCategory(e.target.value as Place["category"])}
                 className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none focus:border-blue-700"
               >
-                <option value="restauracje">Restauracje i gastronomia</option>
+                <option value="restauracje">Gastronomia (Restauracje i Kawiarnie)</option>
                 <option value="kultura">Kultura</option>
                 <option value="sport">Sport i rekreacja</option>
                 <option value="zdrowie">Zdrowie i urzędy</option>

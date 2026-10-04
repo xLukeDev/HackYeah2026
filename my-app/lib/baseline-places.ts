@@ -8,12 +8,12 @@ import { Place } from "./types";
 export const BASELINE_KRAKOW_PLACES: Place[] = [
   // --- GASTRONOMIA ---
   {
-    id: "mcdonalds-rynek",
-    name: "McDonald's Rynek Główny",
+    id: "kawiarnia-noworolski-sukiennice",
+    name: "Kawiarnia Noworolski (Sukiennice)",
     category: "restauracje",
-    categoryLabel: "Restauracje",
-    address: "Rynek Główny 25, 31-008 Kraków",
-    hours: "07:00 - 01:00",
+    categoryLabel: "Gastronomia",
+    address: "Rynek Główny 1, 31-042 Kraków",
+    hours: "08:00 - 23:00",
     features: [
       "Wejście bezprogowe (poziom 0)",
       "Szerokie ciągi komunikacyjne (min. 120 cm)",
@@ -24,14 +24,14 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     accessibility: [
       {
         label: "Wejście bezprogowe (poziom 0)",
-        value: "Wejście z płyty Rynku Głównego bez żadnego uskoku (próg 0 cm), szerokie drzwi automatyczne 110 cm",
-        source: "Pomiary terenowe / tag OSM: wheelchair=yes",
+        value: "Wejście bezpośrednio z arkad Sukiennic bez stopni, próg 0 cm, szerokie drzwi wejściowe",
+        source: "Pomiary terenowe / Audyt Dostępności UMK",
         date: "2026-09-15",
         reliability: "Potwierdzone",
       },
       {
         label: "Toaleta przystosowana (z uchwytami)",
-        value: "Toaleta na parterze bez schodów, certyfikowane poręcze uchylne, przestrzeń manewrowa 160 cm",
+        value: "Toaleta dla osób z niepełnosprawnościami na parterze, poręcze uchylne, system alarmowo-przyzywowy",
         source: "Inspekcja Urzędu Miasta Krakowa",
         date: "2026-09-15",
         reliability: "Potwierdzone",
@@ -40,21 +40,21 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     x: 48,
     y: 40,
     lat: 50.0617,
-    lng: 19.9372,
-    description: "Sieciowa restauracja w samym sercu Krakowa. Lokal wyposażony w wejście bezpośrednio z płyty Rynku, obniżone terminale samoobsługowe oraz toaletę z certyfikowanymi uchwytami.",
+    lng: 19.9373,
+    description: "Zabytkowa kawiarnia w gmachu krakowskich Sukiennic na Rynku Głównym. Dostęp z arkad na poziomie zerowym, przestronny ogródek letni bez barier oraz menu z powiększoną czcionką.",
     verified: true,
     verificationStatus: "zatwierdzony",
     verifiedAt: "2026-09-15",
     verifiedBy: "Urząd Miasta Krakowa",
-    rating: 4.6,
-    reviewsCount: 38,
-    tags: ["fast-food", "burger", "frytki", "jedzenie", "restauracja", "kawa", "napoje", "szybka obsługa"],
+    rating: 4.8,
+    reviewsCount: 42,
+    tags: ["kawiarnia", "kawa", "ciasto", "herbata", "sukiennice", "rynek", "stare miasto", "deser", "gastronomia"],
   },
   {
     id: "kfc-galeria-krakowska",
     name: "KFC Galeria Krakowska",
     category: "restauracje",
-    categoryLabel: "Restauracje",
+    categoryLabel: "Gastronomia",
     address: "ul. Pawia 5, 31-154 Kraków (Poziom +1)",
     hours: "09:00 - 22:00",
     features: [
@@ -97,7 +97,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     id: "costa-coffee-florianska",
     name: "Costa Coffee Floriańska",
     category: "restauracje",
-    categoryLabel: "Restauracje",
+    categoryLabel: "Gastronomia",
     address: "ul. Floriańska 15, 31-019 Kraków",
     hours: "07:30 - 21:00",
     features: [
@@ -138,7 +138,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     id: "green-caffe-nero-szewska",
     name: "Green Caffè Nero Szewska",
     category: "restauracje",
-    categoryLabel: "Restauracje",
+    categoryLabel: "Gastronomia",
     address: "ul. Szewska 18, 31-009 Kraków",
     hours: "07:00 - 22:00",
     features: [
@@ -172,7 +172,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     id: "pizzeria-cyklop",
     name: "Pizzeria Cyklop",
     category: "restauracje",
-    categoryLabel: "Restauracje",
+    categoryLabel: "Gastronomia",
     address: "ul. Mikołajska 22, 31-027 Kraków",
     hours: "11:00 - 23:00",
     features: [
@@ -204,7 +204,7 @@ export const BASELINE_KRAKOW_PLACES: Place[] = [
     id: "owner-zgloszenie-1",
     name: "Kawiarnia Literacka Mozaika",
     category: "restauracje",
-    categoryLabel: "Restauracje",
+    categoryLabel: "Gastronomia",
     address: "ul. Bracka 5, 31-005 Kraków",
     hours: "09:00 - 21:00",
     features: [
