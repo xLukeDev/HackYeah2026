@@ -3,7 +3,7 @@
 import { Place } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, ShieldCheck, Download, Clock } from "lucide-react";
+import { Award, ShieldCheck, Download, Clock } from "lucide-react";
 
 interface OwnerCertificateCardProps {
   currentPlace: Place;
@@ -33,7 +33,7 @@ export default function OwnerCertificateCard({
             isPlaceVerified ? "text-amber-800" : "text-slate-500"
           }`}
         >
-          <Sparkles
+          <Award
             className={`h-4 w-4 ${isPlaceVerified ? "text-amber-500" : "text-slate-400"}`}
           />
           Certyfikat Dostępności 2026

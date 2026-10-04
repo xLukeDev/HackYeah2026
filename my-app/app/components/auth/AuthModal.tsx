@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { UserProfile } from "@/lib/types";
-import { X, Sparkles } from "lucide-react";
+import { X, LogIn } from "lucide-react";
 import DemoProfileSelector from "./DemoProfileSelector";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
@@ -47,7 +47,7 @@ export default function AuthModal({
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-blue-700 to-cyan-500 text-white shadow-md">
-              <Sparkles className="h-5 w-5" />
+              <LogIn className="h-5 w-5" />
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900">

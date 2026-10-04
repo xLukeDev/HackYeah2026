@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { ACCESSIBILITY_CATALOG } from "@/lib/initial-data";
 import { Place } from "@/lib/types";
-import { X, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
+import { X, CheckCircle2, ShieldCheck, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccessibilityIcon } from "@/components/AccessibilityIcon";
 
@@ -19,7 +19,7 @@ export default function QuickVerifyModal({
   isOpen,
   onClose,
 }: QuickVerifyModalProps) {
-  const { updatePlaceFeatures, currentUser, addReport } = useApp();
+  const { updatePlaceFeatures, addReport } = useApp();
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>(place.features);
   const [reportNote, setReportNote] = useState("");
   const [saved, setSaved] = useState(false);
@@ -80,7 +80,7 @@ export default function QuickVerifyModal({
               Zaktualizowane cechy dostępności dla lokalu <strong>{place.name}</strong> zostały zapisane i są widoczne dla wszystkich mieszkańców.
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600" /> +15 punktów weryfikatora dodano do Twojego profilu!
+              <Award className="h-3.5 w-3.5 text-amber-600" /> +15 punktów weryfikatora dodano do Twojego profilu!
             </div>
           </div>
         ) : (

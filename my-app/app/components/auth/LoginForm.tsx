@@ -6,6 +6,7 @@ import { UserProfile, UserRole } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { signIn } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-errors";
 
 interface LoginFormProps {
   onSuccess: (user: UserProfile) => void;
@@ -94,11 +95,16 @@ export default function LoginForm({
 
       // 4. Jeśli konto nie istnieje ani w Better Auth, ani w bazie zarejestrowanych, ani w demo -> ODRZUĆ!
       onError(
-        betterAuthError ||
-          "Nie znaleziono zarejestrowanego konta dla tego adresu e-mail. Zarejestruj się w zakładce „Utwórz konto” lub skorzystaj z profilu demonstracyjnego."
+        betterAuthError
+          ? translateAuthError(betterAuthError)
+          : "Nie znaleziono zarejestrowanego konta dla tego adresu e-mail. Zarejestruj się w zakładce „Zarejestruj się” lub skorzystaj z profilu demonstracyjnego."
       );
     } catch (err: unknown) {
-      onError(err instanceof Error ? err.message : "Wystąpił błąd podczas logowania.");
+      onError(
+        translateAuthError(
+          err instanceof Error ? err.message : "Wystąpił błąd podczas logowania."
+        )
+      );
     } finally {
       setLoading(false);
     }

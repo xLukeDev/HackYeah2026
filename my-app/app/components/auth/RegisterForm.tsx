@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UserCheck, Building2, Shield } from "lucide-react";
 import { signUp } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-errors";
 
 interface RegisterFormProps {
   onSuccess: (user: UserProfile) => void;
@@ -74,7 +75,10 @@ export default function RegisterForm({
           name: name.trim(),
         });
         if (res?.error) {
-          onError(res.error.message || "Nie udało się zarejestrować konta.");
+          onError(
+            translateAuthError(res.error.message) ||
+              "Nie udało się zarejestrować konta. Spróbuj ponownie."
+          );
           return;
         }
       } catch {
@@ -121,7 +125,11 @@ export default function RegisterForm({
 
       onSuccess(newUser);
     } catch (err: unknown) {
-      onError(err instanceof Error ? err.message : "Wystąpił błąd podczas rejestracji.");
+      onError(
+        translateAuthError(
+          err instanceof Error ? err.message : "Wystąpił błąd podczas rejestracji."
+        )
+      );
     } finally {
       setLoading(false);
     }

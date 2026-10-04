@@ -1,8 +1,8 @@
 "use client";
 
-import { UserProfile, Review, Report } from "@/lib/types";
+import { UserProfile } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles } from "lucide-react";
+import { Award } from "lucide-react";
 
 interface UserProfileHeaderProps {
   currentUser: UserProfile;
@@ -34,7 +34,7 @@ export default function UserProfileHeader({
             <p className="text-xs text-blue-200 mt-1">{currentUser.email}</p>
             <div className="mt-2 flex items-center gap-2">
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 border border-amber-300/30 px-2.5 py-0.5 text-xs font-bold text-amber-200">
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
+                <Award className="h-3.5 w-3.5 text-amber-300" />
                 {currentUser.badge}
               </span>
             </div>

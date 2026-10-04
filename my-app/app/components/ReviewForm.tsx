@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useApp } from "@/lib/app-context";
 import { ACCESSIBILITY_CATALOG } from "@/lib/initial-data";
 import { Place } from "@/lib/types";
-import { Star, CheckCircle2, X, Sparkles, Building2 } from "lucide-react";
+import { Star, CheckCircle2, X, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccessibilityIcon } from "@/components/AccessibilityIcon";
 
@@ -92,7 +92,7 @@ export default function ReviewForm({ place, onClose, authorName }: ReviewFormPro
               Twoja recenzja lokalu <strong>{place.name}</strong> oraz zweryfikowane udogodnienia ({selectedLabels.length}) zostały opublikowane i dodane do profilu lokalu.
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
-              <Sparkles className="h-3.5 w-3.5 text-amber-600" /> +25 punktów dodano do Twojego konta!
+              <Award className="h-3.5 w-3.5 text-amber-600" /> +25 punktów dodano do Twojego konta!
             </div>
             <Button
               onClick={onClose}
