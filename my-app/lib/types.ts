@@ -15,7 +15,6 @@ export interface Place {
   categoryLabel: string;
   address: string;
   hours: string;
-  phone: string;
   features: string[];
   accessibility: AccessibilityItem[];
   x: number;
@@ -25,8 +24,14 @@ export interface Place {
   description: string;
   ownerId?: string;
   verified?: boolean;
+  verificationStatus?: "oczekuje" | "zatwierdzony" | "odrzucony" | "do_poprawy";
+  verificationNotes?: string;
+  verifiedAt?: string;
+  verifiedBy?: string;
+  submittedByOwnerName?: string;
   rating?: number;
   reviewsCount?: number;
+  tags?: string[];
 }
 
 export interface Review {
